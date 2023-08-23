@@ -28,12 +28,12 @@ pub fn main() void {
 }
 
 fn makeNumber() MyErr!u32 {
-    std.debug.print("Getting number...", .{});
 
     // Please make the "failed" message print ONLY if the makeNumber()
     // function exits with an error:
-    std.debug.print("failed!\n", .{});
 
+    errdefer std.debug.print("failed!\n", .{});
+    std.debug.print("Getting number...", .{});
     var num = try getNumber(); // <-- This could fail!
 
     num = try increaseNumber(num); // <-- This could ALSO fail!
