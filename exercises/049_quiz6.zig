@@ -26,9 +26,13 @@ const Elephant = struct {
 
     // Your Elephant trunk methods go here!
     // ---------------------------------------------------
+    pub fn getTrunk(self: *Elephant) *Elephant {
+        return self.trunk.?;
+    }
 
-    ???
-
+    pub fn hasTrunk(self: *Elephant) bool {
+        return (self.trunk != null);
+    }
     // ---------------------------------------------------
 
     pub fn visit(self: *Elephant) void {
@@ -52,8 +56,8 @@ pub fn main() void {
     elephantB.tail = &elephantC;
 
     // And link the elephants so that each trunk "points" to the previous.
-    elephantB.trunk = &elephantA;
     elephantC.trunk = &elephantB;
+    elephantB.trunk = &elephantA;
 
     visitElephants(&elephantA);
 
