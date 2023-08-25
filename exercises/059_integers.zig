@@ -15,6 +15,7 @@
 //
 // Please fix the message:
 
+// const root = @import("root");
 const print = @import("std").debug.print;
 
 pub fn main() void {
