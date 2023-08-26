@@ -41,7 +41,10 @@
 const print = @import("std").debug.print;
 
 // The grue is a nod to Zork.
-const TripError = error{ Unreachable, EatenByAGrue };
+const TripError = error{
+    Unreachable,
+    EatenByAGrue,
+};
 
 // Let's start with the Places on the map. Each has a name and a
 // distance or difficulty of travel (as judged by the hermit).
@@ -192,8 +195,8 @@ const TripItem = union(enum) {
             // Oops! The hermit forgot how to capture the union values
             // in a switch statement. Please capture both values as
             // 'p' so the print statements work!
-            .place =>|p|  print("{s}", .{p.name}),
-            .path => |p|  print("--{}->", .{p.dist}),
+            .place => |p| print("{s}", .{p.name}),
+            .path => |p| print("--{}->", .{p.dist}),
         }
     }
 };
@@ -239,7 +242,7 @@ const HermitsNotebook = struct {
     // We'll often want to find an entry by Place. If one is not
     // found, we return null.
     fn getEntry(self: *HermitsNotebook, place: *const Place) ?*NotebookEntry {
-        for (self.entries, 0..) |entry, i| {
+        for (&self.entries, 0..) |*entry, i| {
             if (i >= self.end_of_entries) break;
 
             // Here's where the hermit got stuck. We need to return
@@ -309,7 +312,7 @@ const HermitsNotebook = struct {
     //
     // Looks like the hermit forgot something in the return value of
     // this function. What could that be?
-    fn getTripTo(self: *HermitsNotebook, trip: []?TripItem, dest: *Place) TripError!void {
+    fn getTripTo(self: *HermitsNotebook, trip: []?TripItem, dest: *Place) !void {
         // We start at the destination entry.
         const destination_entry = self.getEntry(dest);
 
@@ -429,7 +432,7 @@ fn printTrip(trip: []?TripItem) void {
     // We convert the usize length to a u8 with @intCast(), a
     // builtin function just like @import().  We'll learn about
     // these properly in a later exercise.
-    var i: u8 = @intCast(trip.len);
+    var i: u8 = @as(u8, @intCast(trip.len));
 
     while (i > 0) {
         i -= 1;
