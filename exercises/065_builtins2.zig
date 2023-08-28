@@ -1,13 +1,13 @@
 //
 // Zig has builtins for mathematical operations such as...
 //
-//      @sqrt        @sin           @cos
-//      @exp         @log           @floor
+//      @sqrt        @sin          @cos
+//      @exp         @log          @floor
 //
 // ...and lots of type casting operations such as...
 //
-//      @as          @errorFromInt  @floatFromInt
-//      @ptrFromInt  @intFromPtr    @intFromEnum
+//      @as          @intToError   @intToFloat
+//      @intToPtr    @ptrToInt     @enumToInt
 //
 // Spending part of a rainy day skimming through the complete
 // list of builtins in the official Zig documentation wouldn't be
@@ -40,19 +40,30 @@
 // (Notice how the two functions which return types start with
 // uppercase letters? This is a standard naming practice in Zig.)
 //
-const print = @import("std").debug.print;
+const print = @import("std").debug.print; // Oops!
 
 const Narcissus = struct {
     me: *Narcissus = undefined,
     myself: *Narcissus = undefined,
-    echo: void = undefined, // Alas, poor Echo!
+    echo: void = undefined,
 
     fn fetchTheMostBeautifulType() type {
         return @This();
     }
 };
 
+const MyStruct = struct {
+    fn y(self: *@This()) void {
+        self.x += 1;
+    }
+
+    x: u8,
+};
+
 pub fn main() void {
+    var my_struct: MyStruct = MyStruct{ .x = 1 };
+    my_struct.y();
+
     var narcissus: Narcissus = Narcissus{};
 
     // Oops! We cannot leave the 'me' and 'myself' fields
@@ -62,21 +73,15 @@ pub fn main() void {
 
     // This determines a "peer type" from three separate
     // references (they just happen to all be the same object).
-    const Type1 = @TypeOf(narcissus);
+    const T1 = @TypeOf(narcissus, narcissus.me.*, narcissus.myself.*);
 
     // Oh dear, we seem to have done something wrong when calling
-    // this function. We called it as a method, which would work
-    // if it had a self parameter. But it doesn't. (See above.)
-    //
-    // The fix for this is very subtle, but it makes a big
-    // difference!
-    const Type2 = narcissus.fetchTheMostBeautifulType();
+    // this function. It is namespaced to the struct, but doesn't
+    // use the method syntax (there's no self parameter). Please
+    // fix this call:
+    const T2 = Narcissus.fetchTheMostBeautifulType();
 
-    // Now we print a pithy statement about Narcissus.
-    print("A {s} loves all {s}es. ", .{
-        maximumNarcissism(@TypeOf(Type1)),
-        maximumNarcissism(@TypeOf(Type2)),
-    });
+    print("A {} loves all {}es. ", .{ T1, T2 });
 
     //   His final words as he was looking in
     //   those waters he habitually watched
@@ -100,7 +105,7 @@ pub fn main() void {
     //
     //     pub const StructField = struct {
     //         name: []const u8,
-    //         type: type,
+    //         field_type: type,
     //         default_value: anytype,
     //         is_comptime: bool,
     //         alignment: comptime_int,
@@ -109,15 +114,15 @@ pub fn main() void {
     // Please complete these 'if' statements so that the field
     // name will not be printed if the field is of type 'void'
     // (which is a zero-bit type that takes up no space at all!):
-    if (@TypeOf(fields[0]) != void) {
+    if (fields[0].field_type != void) {
         print(" {s}", .{@typeInfo(Narcissus).Struct.fields[0].name});
     }
 
-    if (@TypeOf(fields[1]) != void) {
+    if (fields[1].field_type != void) {
         print(" {s}", .{@typeInfo(Narcissus).Struct.fields[1].name});
     }
 
-    if (@TypeOf(fields[2]) != void) {
+    if (fields[2].field_type != void) {
         print(" {s}", .{@typeInfo(Narcissus).Struct.fields[2].name});
     }
 
@@ -127,23 +132,7 @@ pub fn main() void {
     // Alas, we can't use a regular 'for' loop here because
     // 'fields' can only be evaluated at compile time.  It seems
     // like we're overdue to learn about this "comptime" stuff,
-    // doesn't it? Don't worry, we'll get there.
+    // isn't it? :-)
 
     print(".\n", .{});
-}
-
-// NOTE: This exercise did not originally include the function below.
-// But a change after Zig 0.10.0 added the source file name to the
-// type. "Narcissus" became "065_builtins2.Narcissus".
-//
-// To fix this, I've added this function to strip the filename from
-// the front of the type name in the dumbest way possible. (It returns
-// a slice of the type name starting at character 14 (assuming
-// single-byte characters).
-//
-// We'll be seeing @typeName again in Exercise 070. For now, you can
-// see that it takes a Type and returns a u8 "string".
-fn maximumNarcissism(MyType: anytype) []const u8 {
-    // Turn '065_builtins2.Narcissus' into 'Narcissus'
-    return @typeName(MyType);
 }
