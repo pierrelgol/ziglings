@@ -62,7 +62,7 @@ pub fn main() void {
 
     // This determines a "peer type" from three separate
     // references (they just happen to all be the same object).
-    const Type1 = @TypeOf(narcissus, narcissus.me.*, narcissus.myself.*);
+    const Type1 = @TypeOf(narcissus);
 
     // Oh dear, we seem to have done something wrong when calling
     // this function. We called it as a method, which would work
@@ -74,8 +74,8 @@ pub fn main() void {
 
     // Now we print a pithy statement about Narcissus.
     print("A {s} loves all {s}es. ", .{
-        maximumNarcissism(Type1),
-        maximumNarcissism(Type2),
+        maximumNarcissism(@TypeOf(Type1)),
+        maximumNarcissism(@TypeOf(Type2)),
     });
 
     //   His final words as he was looking in
@@ -113,11 +113,11 @@ pub fn main() void {
         print(" {s}", .{@typeInfo(Narcissus).Struct.fields[0].name});
     }
 
-    if (fields[1].? != void) {
+    if (@TypeOf(fields[1]) != void) {
         print(" {s}", .{@typeInfo(Narcissus).Struct.fields[1].name});
     }
 
-    if (fields[2].? != void) {
+    if (@TypeOf(fields[2]) != void) {
         print(" {s}", .{@typeInfo(Narcissus).Struct.fields[2].name});
     }
 
@@ -143,7 +143,7 @@ pub fn main() void {
 //
 // We'll be seeing @typeName again in Exercise 070. For now, you can
 // see that it takes a Type and returns a u8 "string".
-fn maximumNarcissism(myType: anytype) []const u8 {
+fn maximumNarcissism(MyType: anytype) []const u8 {
     // Turn '065_builtins2.Narcissus' into 'Narcissus'
-    return @typeName(myType)[14..];
+    return @typeName(MyType);
 }
