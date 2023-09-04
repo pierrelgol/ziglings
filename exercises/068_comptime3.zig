@@ -25,8 +25,7 @@ const Schooner = struct {
     scale: u32 = 1,
     hull_length: u32 = 143,
     bowsprit_length: u32 = 34,
-    mainmast_height: u32 = 95,
-
+    mainmast_height: u32 = 95
     fn scaleMe(self: *Schooner, comptime scale: u32) void {
         comptime var my_scale = scale;
 
